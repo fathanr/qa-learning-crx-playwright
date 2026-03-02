@@ -1,0 +1,23 @@
+{
+  "name": "playwright-crx-learning",
+  "version": "1.0.0",
+  "description": "Playwright CRX - Learn by Doing",
+  "scripts": {
+    "test": "playwright test",
+    "test:basics": "playwright test tests/basics",
+    "test:assertions": "playwright test tests/assertions",
+    "test:pom": "playwright test tests/pom",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report"
+  },
+  "keywords": ["playwright", "crx", "testing", "learning"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  }
+}

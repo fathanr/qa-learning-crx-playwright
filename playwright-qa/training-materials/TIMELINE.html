@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline Pelatihan - Playwright CRX</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1a1a2e, #16213e); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        h1 { text-align: center; color: #fff; margin-bottom: 10px; font-size: 2rem; }
+        .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 30px; }
+        .tool-info { background: rgba(102,126,234,0.2); border: 1px solid #667eea; border-radius: 15px; padding: 20px; margin-bottom: 30px; text-align: center; }
+        .tool-info h3 { color: #667eea; margin-bottom: 10px; }
+        .tool-info p { color: #d1d5db; line-height: 1.6; }
+        .tool-link { display: inline-block; margin-top: 15px; padding: 10px 20px; background: #667eea; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 600; }
+        .tool-link:hover { background: #5a6fd6; }
+        .day { background: rgba(255,255,255,0.05); border-radius: 20px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); }
+        .day-header { padding: 20px 30px; display: flex; align-items: center; gap: 20px; }
+        .day-1 .day-header { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .day-2 .day-header { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .day-number { width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: bold; color: #fff; }
+        .day-title { color: #fff; font-size: 1.3rem; }
+        .day-subtitle { color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-top: 5px; }
+        .day-content { padding: 25px; }
+        .session { background: rgba(0,0,0,0.3); border-radius: 12px; margin-bottom: 15px; padding: 18px; border-left: 4px solid #667eea; }
+        .session-title { color: #fff; font-size: 1.1rem; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .session-time { background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 15px; color: #a0a0a0; font-size: 0.8rem; }
+        .target { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; position: relative; }
+        .target-icon { width: 22px; height: 22px; min-width: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; background: #6b7280; color: #fff; }
+        .target.completed .target-icon { background: #10b981; }
+        .target.in-progress .target-icon { background: #f59e0b; }
+        .target-text { color: #d1d5db; font-size: 0.9rem; flex: 1; line-height: 1.4; }
+        .target-label { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; margin-left: 8px; text-transform: uppercase; }
+        .target-label.wajib { background: #ef4444; color: #fff; }
+        .target-label.opsional { background: #3b82f6; color: #fff; }
+        .step-toggle { background: rgba(102,126,234,0.4); border: 1px solid #667eea; color: #a0a0ff; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.75rem; margin-left: auto; flex-shrink: 0; }
+        .step-toggle:hover { background: #667eea; color: #fff; }
+        .details-content { display: none; margin-top: 12px; padding: 15px; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid rgba(102,126,234,0.3); }
+        .details-content.show { display: block; }
+        .details-content h4 { color: #667eea; margin-bottom: 10px; font-size: 0.9rem; }
+        .details-content ol { margin-left: 18px; color: #d1d5db; line-height: 1.8; font-size: 0.85rem; }
+        .details-content li { margin-bottom: 6px; }
+        .code-block { background: #1e1e1e; border-radius: 6px; padding: 12px; margin: 10px 0; overflow-x: auto; }
+        .code-block pre { margin: 0; color: #d4d4d4; font-family: Consolas, monospace; font-size: 0.8rem; white-space: pre-wrap; }
+        .code-block .comment { color: #6a9955; }
+        .code-block .keyword { color: #569cd6; }
+        .code-block .string { color: #ce9178; }
+        .code-block .function { color: #dcdcaa; }
+        .summary { background: linear-gradient(135deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2)); border-radius: 20px; padding: 25px; margin-top: 30px; border: 1px solid rgba(255,255,255,0.1); }
+        .summary h2 { color: #fff; margin-bottom: 20px; text-align: center; }
+        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .summary-item { text-align: center; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 12px; }
+        .summary-item .number { font-size: 2rem; font-weight: bold; color: #667eea; }
+        .summary-item .label { color: #a0a0a0; margin-top: 5px; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Timeline Pelatihan</h1>
+    <p class="subtitle">Playwright CRX - 2 Hari Intensive</p>
+    
+    <div class="tool-info">
+        <h3>Apa itu Playwright CRX?</h3>
+        <p>Chrome Extension untuk merekam actions browser dan mengexport ke kode Playwright (TypeScript/JavaScript).<br>Bisa record assertions juga!</p>
+        <a href="https://chromewebstore.google.com/detail/playwright-crx/jambeljnbnfbkcpnoiaedcabbgmnnlcd" target="_blank" class="tool-link">Install dari Chrome Web Store</a>
+    </div>
+    
+    <!-- DAY 1 -->
+    <div class="day day-1">
+        <div class="day-header">
+            <div class="day-number">1</div>
+            <div><div class="day-title">Dasar-Dasar</div><div class="day-subtitle">Install, Recording, Setup Lokal, Assertions</div></div>
+        </div>
+        <div class="day-content">
+            
+            <div class="session">
+                <div class="session-title">Session 1: Install & Pengenalan <span class="session-time">60 menit</span></div>
+                
+                <div class="target completed">
+                    <div class="target-icon">1</div>
+                    <div class="target-text">Install Playwright CRX dari Chrome Web Store <span class="target-label wajib">Wajib</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Steps</button>
+                </div>
+                <div class="details-content">
+                    <h4>Langkah-langkah Install:</h4>
+                    <ol>
+                        <li>Buka link Chrome Web Store di atas</li>
+                        <li>Klik "Add to Chrome" → "Add extension"</li>
+                        <li>Icon Playwright CRX muncul di toolbar</li>
+                    </ol>
+                </div>
+                
+                <div class="target completed">
+                    <div class="target-icon">2</div>
+                    <div class="target-text">Fitur-fitur Playwright CRX <span class="target-label wajib">Wajib</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Steps</button>
+                </div>
+                <div class="details-content">
+                    <h4>Fitur Utama:</h4>
+                    <ol>
+                        <li><strong>Record</strong> - Record actions otomatis</li>
+                        <li><strong>Play</strong> - Jalankan recorded script</li>
+                        <li><strong>Assert</strong> - Record assertions</li>
+                        <li><strong>Export</strong> - Export ke TS/JS</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="session">
+                <div class="session-title">Session 2: Recording Pertama <span class="session-time">90 menit</span></div>
+                
+                <div class="target completed">
+                    <div class="target-icon">1</div>
+                    <div class="target-text">Record actions (click, fill, hover, select) <span class="target-label wajib">Wajib</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Code</button>
+                </div>
+                <div class="details-content">
+                    <h4>Actions:</h4>
+                    <div class="code-block"><pre><span class="comment">// Click</span>
+<span class="function">await</span> page.<span class="function">click</span>(<span class="string">'#submit'</span>);
+
+<span class="comment">// Fill</span>
+<span class="function">await</span> page.<span class="function">fill</span>(<span class="string">'#username'</span>, <span class="string">'admin'</span>);
+
+<span class="comment">// Select</span>
+<span class="function">await</span> page.<span class="function">selectOption</span>(<span class="string">'#country'</span>, <span class="string">'US'</span>);
+
+<span class="comment">// Checkbox</span>
+<span class="function">await</span> page.<span class="function">check</span>(<span class="string">'#agree'</span>);</pre></div>
+                </div>
+                
+                <div class="target completed">
+                    <div class="target-icon">2</div>
+                    <div class="target-text">Add assertions saat recording <span class="target-label wajib">Wajib</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Code</button>
+                </div>
+                <div class="details-content">
+                    <h4>Assertions:</h4>
+                    <div class="code-block"><pre><span class="comment">// Text</span>
+expect(page.locator(<span class="string">'#msg'</span>)).toHaveText(<span class="string">'Success'</span>);
+
+<span class="comment">// Visibility</span>
+expect(page.locator(<span class="string">'.modal'</span>)).toBeVisible();
+
+<span class="comment">// Value</span>
+expect(page.locator(<span class="string">'#email'</span>)).toHaveValue(<span class="string">'test@test.com'</span>);</pre></div>
+                </div>
+                
+                <div class="target completed">
+                    <div class="target-icon">3</div>
+                    <div class="target-text">Export ke TypeScript/JavaScript <span class="target-label wajib">Wajib</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Code</button>
+                </div>
+                <div class="details-content">
+                    <h4>Export:</h4>
+                    <div class="code-block"><pre><span class="keyword">import</span> { test, expect } <span class="keyword">from</span> <span class="string">'@playwright/test'</span>;
+
+test(<span class="string">'recorded'</span>, <span class="keyword">async</span> ({ page }) => {
+  <span class="function">await</span> page.<span class="function">goto</span>(<span class="string">'login.html'</span>);
+  <span class="function">await</span> page.<span class="function">fill</span>(<span class="string">'#username'</span>, <span class="string">'admin'</span>);
+});</pre></div>
+                </div>
+            </div>
+            
+            <div class="session">
+                <div class="session-title">Session 3: Setup Lokal <span class="session-time">60 menit</span></div>
+                
+                <div class="target completed">
+                    <div class="target-icon">1</div>
+                    <div class="target-text">Install Node.js + Playwright lokal <span class="target-label wajib">Wajib</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Steps</button>
+                </div>
+                <div class="details-content">
+                    <h4>Commands:</h4>
+                    <div class="code-block"><pre><span class="comment"># Install Node.js dari nodejs.org</span>
+
+<span class="comment"># Di terminal:</span>
+npm init -y
+npm install -D @playwright/test
+npx playwright install chromium</pre></div>
+                </div>
+                
+                <div class="target completed">
+                    <div class="target-icon">2</div>
+                    <div class="target-text">Jalankan recorded script <span class="target-label wajib">Wajib</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Code</button>
+                </div>
+                <div class="details-content">
+                    <h4>Run Tests:</h4>
+                    <div class="code-block"><pre><span class="comment"># Run all tests</span>
+npx playwright test
+
+<span class="comment"># UI Mode</span>
+npx playwright test --ui
+
+<span class="comment"># Debug</span>
+npx playwright test --debug</pre></div>
+                </div>
+            </div>
+            
+            <div class="session">
+                <div class="session-title">Session 4: Assertions Lanjutan <span class="session-time">90 menit</span></div>
+                
+                <div class="target in-progress">
+                    <div class="target-icon">1</div>
+                    <div class="target-text">toHaveText, toContainText, toHaveValue <span class="target-label wajib">Wajib</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Code</button>
+                </div>
+                <div class="details-content">
+                    <h4>Text & Value:</h4>
+                    <div class="code-block"><pre><span class="comment">// Exact text</span>
+expect(page.locator(<span class="string">'h1'</span>)).toHaveText(<span class="string">'Welcome'</span>);
+
+<span class="comment">// Contains</span>
+expect(page.locator(<span class="string">'.msg'</span>)).toContainText(<span class="string">'success'</span>);
+
+<span class="comment">// Input value</span>
+expect(page.locator(<span class="string">'#email'</span>)).toHaveValue(<span class="string">'test@test.com'</span>);
+
+<span class="comment">// Checkbox</span>
+expect(page.locator(<span class="string">'#remember'</span>)).toBeChecked();</pre></div>
+                </div>
+                
+                <div class="target pending">
+                    <div class="target-icon">2</div>
+                    <div class="target-text">toBeVisible, toBeHidden, toHaveAttribute <span class="target-label wajib">Wajib</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Code</button>
+                </div>
+                <div class="details-content">
+                    <h4>Visibility & Attributes:</h4>
+                    <div class="code-block"><pre><span class="comment">// Visible</span>
+expect(page.locator(<span class="string">'.modal'</span>)).toBeVisible();
+
+<span class="comment">// Hidden</span>
+expect(page.locator(<span class="string">'.loading'</span>)).toBeHidden();
+
+<span class="comment">// Attribute</span>
+expect(page.locator(<span class="string">'#link'</span>)).toHaveAttribute(<span class="string">'href'</span>, <span class="string">'/home'</span>);
+
+<span class="comment">// Class</span>
+expect(page.locator(<span class="string">'#btn'</span>)).toHaveClass(<span class="string">/active/</span>);</pre></div>
+                </div>
+                
+                <div class="target pending">
+                    <div class="target-icon">3</div>
+                    <div class="target-text">toHaveURL, toHaveTitle, toHaveCount <span class="target-label wajib">Wajib</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Code</button>
+                </div>
+                <div class="details-content">
+                    <h4>Page & Count:</h4>
+                    <div class="code-block"><pre><span class="comment">// URL</span>
+expect(page).toHaveURL(/dashboard/);
+
+<span class="comment">// Title</span>
+expect(page).toHaveTitle(<span class="string">'Login'</span>);
+
+<span class="comment">// Count</span>
+expect(page.locator(<span class="string">'.item'</span>)).toHaveCount(5);</pre></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- DAY 2 -->
+    <div class="day day-2">
+        <div class="day-header">
+            <div class="day-number">2</div>
+            <div><div class="day-title">Intermediate & Advanced</div><div class="day-subtitle">Advanced Features, POM, Debugging, CI/CD</div></div>
+        </div>
+        <div class="day-content">
+            
+            <div class="session">
+                <div class="session-title">Session 5: Advanced Features <span class="session-time">90 menit</span></div>
+                
+                <div class="target pending">
+                    <div class="target-icon">1</div>
+                    <div class="target-text">Multiple tabs/pages <span class="target-label wajib">Wajib</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Code</button>
+                </div>
+                <div class="details-content">
+                    <h4>Multiple Tabs:</h4>
+                    <div class="code-block"><pre><span class="comment">// New tab</span>
+<span class="keyword">const</span> page2 = <span class="function">await</span> context.<span class="function">newPage</span>();
+<span class="function">await</span> page2.<span class="function">goto</span>(<span class="string">'form.html'</span>);
+
+<span class="comment">// Wait for new page</span>
+<span class="keyword">const</span> [newPage] = <span class="function">await</span> Promise.all([
+  context.<span class="function">waitForEvent</span>(<span class="string">'page'</span>),
+  page.<span class="function">click</span>(<span class="string">'#open-new'</span>)
+]);</pre></div>
+                </div>
+                
+                <div class="target pending">
+                    <div class="target-icon">2</div>
+                    <div class="target-text">File upload/download <span class="target-label wajib">Wajib</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Code</button>
+                </div>
+                <div class="details-content">
+                    <h4>File Operations:</h4>
+                    <div class="code-block"><pre><span class="comment">// Upload</span>
+<span class="function">await</span> page.<span class="function">setInputFiles</span>(<span class="string">'#upload'</span>, <span class="string">'file.pdf'</span>);
+
+<span class="comment">// Download</span>
+<span class="keyword">const</span> download = <span class="function">await</span> Promise.all([
+  page.<span class="function">waitForEvent</span>(<span class="string">'download'</span>),
+  page.<span class="function">click</span>(<span class="string">'#download'</span>)
+]);</pre></div>
+                </div>
+                
+                <div class="target pending">
+                    <div class="target-icon">3</div>
+                    <div class="target-text">Wait strategies (navigation, response) <span class="target-label wajib">Wajib</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Code</button>
+                </div>
+                <div class="details-content">
+                    <h4>Waits:</h4>
+                    <div class="code-block"><pre><span class="comment">// Wait for URL</span>
+<span class="function">await</span> page.<span class="function">waitForURL</span>(<span class="string">'/dashboard'</span>);
+
+<span class="comment">// Wait for response</span>
+<span class="function">await</span> page.<span class="function">waitForResponse</span>(r => r.<span class="function">url</span>().<span class="function">includes</span>(<span class="string">'/api'</span>));
+
+<span class="comment">// Wait for selector</span>
+<span class="function">await</span> page.<span class="function">waitForSelector</span>(<span class="string">'.loaded'</span>, { <span class="property">state</span>: <span class="string">'visible'</span> });</pre></div>
+                </div>
+            </div>
+            
+            <div class="session">
+                <div class="session-title">Session 6: Script Optimization <span class="session-time">60 menit</span></div>
+                
+                <div class="target pending">
+                    <div class="target-icon">1</div>
+                    <div class="target-text">Robust selectors (getByRole, getByTestId) <span class="target-label wajib">Wajib</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Code</button>
+                </div>
+                <div class="details-content">
+                    <h4>Selectors:</h4>
+                    <div class="code-block"><pre><span class="comment">// ❌ Bad</span>
+page.click(<span class="string">'.active > div:nth-child(2)'</span>);
+
+<span class="comment">// ✅ Good</span>
+page.getByRole(<span class="string">'button'</span>, { <span class="property">name</span>: <span class="string">'Submit'</span> });
+page.getByTestId(<span class="string">'submit-btn'</span>);
+page.getByLabel(<span class="string">'Email'</span>).fill(<span class="string">'test@test.com'</span>);</pre></div>
+                </div>
+                
+                <div class="target pending">
+                    <div class="target-icon">2</div>
+                    <div class="target-text">Page Object Model (POM) <span class="target-label wajib">Wajib</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Code</button>
+                </div>
+                <div class="details-content">
+                    <h4>Page Object:</h4>
+                    <div class="code-block"><pre><span class="comment">// pages/LoginPage.ts</span>
+<span class="keyword">export class</span> <span class="function">LoginPage</span> {
+  <span class="keyword">constructor</span>(<span class="keyword">private</span> page: Page) {}
+
+  <span class="keyword">async</span> <span class="function">login</span>(user: <span class="keyword">string</span>, pass: <span class="keyword">string</span>) {
+    <span class="function">await</span> this.page.<span class="function">fill</span>(<span class="string">'#username'</span>, user);
+    <span class="function">await</span> this.page.<span class="function">fill</span>(<span class="string">'#password'</span>, pass);
+    <span class="function">await</span> this.page.<span class="function">click</span>(<span class="string">'button'</span>);
+  }
+}
+
+<span class="comment">// Use in test</span>
+test(<span class="string">'login'</span>, <span class="keyword">async</span> ({ page }) => {
+  <span class="keyword">const</span> loginPage = <span class="keyword">new</span> <span class="function">LoginPage</span>(page);
+  <span class="function">await</span> loginPage.<span class="function">login</span>(<span class="string">'admin'</span>, <span class="string">'pass'</span>);
+});</pre></div>
+                </div>
+            </div>
+            
+            <div class="session">
+                <div class="session-title">Session 7: Real Project & Debugging <span class="session-time">90 menit</span></div>
+                
+                <div class="target pending">
+                    <div class="target-icon">1</div>
+                    <div class="target-text">Record login, CRUD flows <span class="target-label wajib">Wajib</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Code</button>
+                </div>
+                <div class="details-content">
+                    <h4>CRUD Example:</h4>
+                    <div class="code-block"><pre><span class="comment">// CREATE</span>
+test(<span class="string">'create item'</span>, <span class="keyword">async</span> ({ page }) => {
+  <span class="function">await</span> page.<span class="function">fill</span>(<span class="string">'#title'</span>, <span class="string">'New Item'</span>);
+  <span class="function">await</span> page.<span class="function">click</span>(<span class="string">'#save'</span>);
+  <span class="function">await</span> expect(page.<span class="function">locator</span>(<span class="string">'.item'</span>)).<span class="function">toContainText</span>(<span class="string">'New Item'</span>);
+});
+
+<span class="comment">// DELETE</span>
+test(<span class="string">'delete item'</span>, <span class="keyword">async</span> ({ page }) => {
+  <span class="keyword">const</span> count = <span class="function">await</span> page.<span class="function">locator</span>(<span class="string">'.item'</span>).<span class="function">count</span>();
+  <span class="function">await</span> page.<span class="function">click</span>(<span class="string">'.item:first-child .delete'</span>);
+  <span class="function">await</span> expect(page.<span class="function">locator</span>(<span class="string">'.item'</span>)).<span class="function">toHaveCount</span>(count - 1);
+});</pre></div>
+                </div>
+                
+                <div class="target pending">
+                    <div class="target-icon">2</div>
+                    <div class="target-text">Trace viewer, screenshot, popups <span class="target-label wajib">Wajib</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Code</button>
+                </div>
+                <div class="details-content">
+                    <h4>Debugging:</h4>
+                    <div class="code-block"><pre><span class="comment"># Run with trace</span>
+npx playwright test --trace on
+
+<span class="comment"># View trace</span>
+npx playwright show-trace trace.zip
+
+<span class="comment">// Handle popup</span>
+page.on(<span class="string">'dialog'</span>, dialog => dialog.accept());
+
+<span class="comment">// Screenshot on failure</span>
+<span class="property">use</span>: {
+  <span class="property">screenshot</span>: <span class="string">'only-on-failure'</span>,
+}</pre></div>
+                </div>
+            </div>
+            
+            <div class="session">
+                <div class="session-title">Session 8: Config & CI/CD <span class="session-time">60 menit</span></div>
+                
+                <div class="target pending">
+                    <div class="target-icon">1</div>
+                    <div class="target-text">playwright.config.ts optimal <span class="target-label wajib">Wajib</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Code</button>
+                </div>
+                <div class="details-content">
+                    <h4>Config:</h4>
+                    <div class="code-block"><pre><span class="keyword">export default</span> defineConfig({
+  <span class="property">testDir</span>: <span class="string">'./tests'</span>,
+  <span class="property">fullyParallel</span>: <span class="keyword">true</span>,
+  <span class="property">retries</span>: process.env.CI ? <span class="number">2</span> : <span class="number">0</span>,
+  <span class="property">use</span>: {
+    <span class="property">trace</span>: <span class="string">'on-first-retry'</span>,
+    <span class="property">screenshot</span>: <span class="string">'only-on-failure'</span>,
+  },
+});</pre></div>
+                </div>
+                
+                <div class="target pending">
+                    <div class="target-icon">2</div>
+                    <div class="target-text">GitHub Actions CI/CD <span class="target-label opsional">Opsional</span></div>
+                    <button class="step-toggle" onclick="toggleDetails(this)">Code</button>
+                </div>
+                <div class="details-content">
+                    <h4>GitHub Actions:</h4>
+                    <div class="code-block"><pre>name: Tests
+<span class="property">on</span>: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm ci
+      - run: npx playwright install
+      - run: npx playwright test</pre></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="summary">
+        <h2>Total Summary</h2>
+        <div class="summary-grid">
+            <div class="summary-item"><div class="number">2</div><div class="label">Hari</div></div>
+            <div class="summary-item"><div class="number">8</div><div class="label">Sessions</div></div>
+            <div class="summary-item"><div class="number">16</div><div class="label">Targets</div></div>
+            <div class="summary-item"><div class="number">15+</div><div class="label">Test Scripts</div></div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleDetails(btn) {
+    var targetDiv = btn.parentElement;
+    var content = targetDiv.nextElementSibling;
+    
+    if (content && content.classList.contains('details-content')) {
+        content.classList.toggle('show');
+        btn.classList.toggle('active');
+        btn.textContent = content.classList.contains('show') ? 'Hide' : (btn.getAttribute('data-original') || btn.textContent);
+        
+        if (!btn.getAttribute('data-original')) {
+            btn.setAttribute('data-original', btn.textContent);
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.step-toggle').forEach(function(btn) {
+        btn.setAttribute('data-original', btn.textContent);
+    });
+});
+</script>
+</body>
+</html>

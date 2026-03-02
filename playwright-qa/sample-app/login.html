@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form - Practice App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        input.error {
+            border-color: #ef4444;
+        }
+        
+        .error-message {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .remember {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .remember input {
+            width: auto;
+            margin-right: 8px;
+        }
+        
+        .remember label {
+            margin-bottom: 0;
+            font-weight: normal;
+        }
+        
+        .links {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 0.9rem;
+        }
+        
+        .links a:hover {
+            text-decoration: underline;
+        }
+        
+        .welcome-message {
+            text-align: center;
+            display: none;
+        }
+        
+        .welcome-message.show {
+            display: block;
+        }
+        
+        .welcome-message h2 {
+            color: #10b981;
+            margin-bottom: 15px;
+        }
+        
+        .welcome-message p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .user-info {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+        }
+        
+        .user-info p {
+            margin-bottom: 8px;
+        }
+        
+        .user-info strong {
+            color: #333;
+        }
+        
+        .logout-btn {
+            background: #ef4444;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Login Form -->
+        <div id="loginForm">
+            <h1>Welcome Back</h1>
+            <p class="subtitle">Silakan login untuk melanjutkan</p>
+            
+            <form id="form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Masukkan username" data-testid="username">
+                    <p class="error-message" id="usernameError">Username harus diisi</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Masukkan password" data-testid="password">
+                    <p class="error-message" id="passwordError">Password harus diisi</p>
+                </div>
+                
+                <div class="remember">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Ingat saya</label>
+                </div>
+                
+                <button type="submit" data-testid="login-btn">Login</button>
+            </form>
+            
+            <div class="links">
+                <a href="#" data-testid="forgot-password">Lupa password?</a>
+                <a href="#" data-testid="register">Daftar baru</a>
+            </div>
+        </div>
+        
+        <!-- Welcome Message (After Login) -->
+        <div id="welcomeMessage" class="welcome-message">
+            <h2>✓ Login Berhasil!</h2>
+            <p>Selamat datang di aplikasi kami</p>
+            
+            <div class="user-info">
+                <p><strong>Username:</strong> <span id="displayUsername">-</span></p>
+                <p><strong>Remember:</strong> <span id="displayRemember">Tidak</span></p>
+                <p><strong>Login Time:</strong> <span id="loginTime">-</span></p>
+            </div>
+            
+            <button class="logout-btn" id="logoutBtn" data-testid="logout-btn">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('form');
+        const loginForm = document.getElementById('loginForm');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const usernameError = document.getElementById('usernameError');
+        const passwordError = document.getElementById('passwordError');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // Valid credentials
+        const VALID_USER = 'admin';
+        const VALID_PASS = 'password123';
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Reset errors
+            usernameInput.classList.remove('error');
+            passwordInput.classList.remove('error');
+            usernameError.classList.remove('show');
+            passwordError.classList.remove('show');
+            
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+            const remember = document.getElementById('remember').checked;
+            
+            let hasError = false;
+            
+            // Validate
+            if (!username) {
+                usernameInput.classList.add('error');
+                usernameError.classList.add('show');
+                hasError = true;
+            }
+            
+            if (!password) {
+                passwordInput.classList.add('error');
+                passwordError.classList.add('show');
+                hasError = true;
+            }
+            
+            if (hasError) return;
+            
+            // Check credentials
+            if (username === VALID_USER && password === VALID_PASS) {
+                // Show welcome
+                document.getElementById('displayUsername').textContent = username;
+                document.getElementById('displayRemember').textContent = remember ? 'Ya' : 'Tidak';
+                document.getElementById('loginTime').textContent = new Date().toLocaleTimeString();
+                
+                loginForm.style.display = 'none';
+                welcomeMessage.classList.add('show');
+            } else {
+                // Invalid credentials
+                usernameInput.classList.add('error');
+                passwordInput.classList.add('error');
+                usernameError.textContent = 'Username atau password salah';
+                usernameError.classList.add('show');
+            }
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', function() {
+            loginForm.style.display = 'block';
+            welcomeMessage.classList.remove('show');
+            form.reset();
+        });
+
+        // Forgot password
+        document.getElementById('forgot-password').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Fitur lupa password belum tersedia');
+        });
+
+        // Register
+        document.getElementById('register').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Silakan hubungi administrator untuk mendaftar');
+        });
+    </script>
+</body>
+</html>
