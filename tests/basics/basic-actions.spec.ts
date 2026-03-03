@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { loginPage, formPage } from '../../fixtures/paths';
+import { testData } from '../../fixtures/test-data';
 
 test.describe('Basic Actions - Learn by Example', () => {
 
@@ -10,19 +11,19 @@ test.describe('Basic Actions - Learn by Example', () => {
 
   test('2. Fill input field', async ({ page }) => {
     await page.goto(loginPage);
-    await page.fill('#username', 'admin');
-    await page.fill('#password', 'password123');
+    await page.fill('#username', testData.login.valid.username);
+    await page.fill('#password', testData.login.valid.password);
     
-    await expect(page.locator('#username')).toHaveValue('admin');
-    await expect(page.locator('#password')).toHaveValue('password123');
+    await expect(page.locator('#username')).toHaveValue(testData.login.valid.username);
+    await expect(page.locator('#password')).toHaveValue(testData.login.valid.password);
   });
 
   test('3. Click button', async ({ page }) => {
     await page.goto(loginPage);
     
-    // Fill valid credentials
-    await page.fill('#username', 'admin');
-    await page.fill('#password', 'password123');
+    // Fill valid credentials from testData
+    await page.fill('#username', testData.login.valid.username);
+    await page.fill('#password', testData.login.valid.password);
     await page.check('#remember');
     
     // Click login button
@@ -48,8 +49,8 @@ test.describe('Basic Actions - Learn by Example', () => {
     await page.goto(formPage);
     
     // Select option by value
-    await page.selectOption('#subject', 'pertanyaan');
-    await expect(page.locator('#subject')).toHaveValue('pertanyaan');
+    await page.selectOption('#subject', testData.contactForm.valid.subject);
+    await expect(page.locator('#subject')).toHaveValue(testData.contactForm.valid.subject);
     
     // Select option by label
     await page.selectOption('#subject', { label: 'Keluhan' });
@@ -104,13 +105,13 @@ test.describe('Basic Actions - Learn by Example', () => {
     await page.goto(loginPage);
     
     // Fill and submit
-    await page.fill('#username', 'admin');
-    await page.fill('#password', 'password123');
+    await page.fill('#username', testData.login.valid.username);
+    await page.fill('#password', testData.login.valid.password);
     await page.click('button[type="submit"]');
     
     // Get text
     const usernameText = await page.locator('#displayUsername').textContent();
-    expect(usernameText).toBe('admin');
+    expect(usernameText).toBe(testData.login.valid.username);
   });
 
 });

@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { loginPage, formPage } from '../../fixtures/paths';
+import { testData } from '../../fixtures/test-data';
 
 test.describe('Assertions - Learn by Example', () => {
 
@@ -20,8 +21,8 @@ test.describe('Assertions - Learn by Example', () => {
     await expect(page.locator('#welcomeMessage')).toBeHidden();
     
     // After login, form should be hidden
-    await page.fill('#username', 'admin');
-    await page.fill('#password', 'password123');
+    await page.fill('#username', testData.login.valid.username);
+    await page.fill('#password', testData.login.valid.password);
     await page.click('button[type="submit"]');
     
     await expect(page.locator('#loginForm')).toBeHidden();
@@ -45,8 +46,8 @@ test.describe('Assertions - Learn by Example', () => {
     await page.goto(loginPage);
     
     // Fill and check value
-    await page.fill('#username', 'admin');
-    await expect(page.locator('#username')).toHaveValue('admin');
+    await page.fill('#username', testData.login.valid.username);
+    await expect(page.locator('#username')).toHaveValue(testData.login.valid.username);
   });
 
   test('6. toBeChecked() - Checkbox checked', async ({ page }) => {
@@ -129,7 +130,7 @@ test.describe('Assertions - Learn by Example', () => {
     await page.goto(formPage);
     
     // Submit empty form (just fill name)
-    await page.fill('#firstName', 'John');
+    await page.fill('#firstName', testData.contactForm.valid.firstName);
     await page.check('#terms');
     await page.click('[data-testid="submit-btn"]');
     
@@ -139,16 +140,16 @@ test.describe('Assertions - Learn by Example', () => {
     await expect(page.locator('#messageError')).toBeVisible();
     
     // Fill valid data
-    await page.fill('#email', 'john@example.com');
-    await page.selectOption('#subject', 'pertanyaan');
-    await page.fill('#message', 'This is a valid message');
+    await page.fill('#email', testData.contactForm.valid.email);
+    await page.selectOption('#subject', testData.contactForm.valid.subject);
+    await page.fill('#message', testData.contactForm.valid.message);
     
     // Submit form
     await page.click('[data-testid="submit-btn"]');
     
     // Success message should show
     await expect(page.locator('#successMessage')).toBeVisible();
-    await expect(page.locator('#displayName')).toHaveText('John');
+    await expect(page.locator('#displayName')).toHaveText(testData.contactForm.valid.firstName);
   });
 
 });
