@@ -1,8 +1,10 @@
 import { test, expect } from '@playwright/test';
 
-test('test', async ({ page }) => {
+test('run first test with assertion', async ({ page }) => {
     //Go to link website
   await page.goto('https://the-internet.herokuapp.com/login');
+  // assertion web page has Login Page Title
+  await expect(page).toHaveTitle('The Internet');
   // Input username
   await page.getByRole('textbox', { name: 'Username' }).click();
   await page.getByRole('textbox', { name: 'Username' }).fill('tomsmith');
