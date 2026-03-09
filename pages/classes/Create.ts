@@ -1,6 +1,6 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page } from '@playwright/test';
 import { BasePage } from '../BasePage';
-import { LocatorMaster} from '../locators/TodoLocators';
+import { LocatorMaster } from '../locators/TodoLocators';
 
 export class CreateTodo extends BasePage {
 
