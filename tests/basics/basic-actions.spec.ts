@@ -5,6 +5,7 @@ import { testData } from '../../fixtures/test-data';
 test.describe('Basic Actions - Learn by Example', () => {
 
   test('1. Navigate to page', async ({ page }) => {
+    test.setTimeout(30000);
     await page.goto(loginPage);
     await expect(page).toHaveTitle(/Login Form/);
   });

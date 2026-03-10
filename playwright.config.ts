@@ -12,6 +12,13 @@ export default defineConfig({
   use: {
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    viewport: null,
+    launchOptions: {
+      args: [
+        '--window-size=1920,1080',
+        '--start-maximized',
+      ],
+    },
   },
   projects: [
     {
