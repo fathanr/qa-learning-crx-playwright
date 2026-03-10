@@ -459,12 +459,13 @@
             errorMessage.classList.remove('show');
             
             const formData = new FormData();
+            const isMultiple = selectedFiles.length > 1;
+            const fieldName = isMultiple ? 'images' : 'image';
             selectedFiles.forEach(file => {
-                formData.append('images', file);
+                formData.append(fieldName, file);
             });
             
             try {
-                const isMultiple = selectedFiles.length > 1;
                 const url = isMultiple ? 'http://localhost:3000/upload-multiple' : 'http://localhost:3000/upload';
                 
                 const response = await fetch(url, {
