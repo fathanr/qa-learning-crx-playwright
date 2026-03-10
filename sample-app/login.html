@@ -174,6 +174,86 @@
             background: #ef4444;
             margin-top: 15px;
         }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .modal-close:hover {
+            color: #333;
+        }
+        
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .modal .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .modal button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+        }
+        
+        .modal .back-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .modal .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .modal .back-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .success-message {
+            color: #10b981;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -205,8 +285,9 @@
             </form>
             
             <div class="links">
-                <a href="#" data-testid="forgot-password">Lupa password?</a>
-                <a href="#" data-testid="register">Daftar baru</a>
+                <a href="#" id="forgot-password" data-testid="forgot-password">Lupa password?</a>
+                <a href="#" id="register" data-testid="register">Daftar baru</a>
+                <a href="upload.html" data-testid="upload-page">Upload Gambar</a>
             </div>
         </div>
         
@@ -222,6 +303,70 @@
             </div>
             
             <button class="logout-btn" id="logoutBtn" data-testid="logout-btn">Logout</button>
+            
+            <div class="links" style="margin-top: 15px;">
+                <a href="upload.html" data-testid="upload-page">Upload Gambar</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeRegisterModal()">&times;</span>
+            <h2>Daftar Baru</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="regUsername">Username</label>
+                    <input type="text" id="regUsername" name="username" placeholder="Masukkan username" required>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" name="email" placeholder="Masukkan email" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <input type="password" id="regPassword" name="password" placeholder="Masukkan password" required>
+                </div>
+                <div class="form-group">
+                    <label for="regConfirmPassword">Konfirmasi Password</label>
+                    <input type="password" id="regConfirmPassword" placeholder="Masukkan password lagi" required>
+                </div>
+                <p class="error-message" id="registerError"></p>
+                <p class="success-message" id="registerSuccess"></p>
+                <button type="submit">Daftar</button>
+                <div class="back-link">
+                    <a onclick="closeRegisterModal(); openLoginModal();">Kembali ke Login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Forgot Password Modal -->
+    <div id="forgotModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeForgotModal()">&times;</span>
+            <h2>Lupa Password</h2>
+            <form id="forgotForm">
+                <div class="form-group">
+                    <label for="forgotEmail">Email</label>
+                    <input type="email" id="forgotEmail" name="email" placeholder="Masukkan email" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">Password Baru</label>
+                    <input type="password" id="newPassword" name="newPassword" placeholder="Masukkan password baru" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmNewPassword">Konfirmasi Password Baru</label>
+                    <input type="password" id="confirmNewPassword" placeholder="Masukkan password lagi" required>
+                </div>
+                <p class="error-message" id="forgotError"></p>
+                <p class="success-message" id="forgotSuccess"></p>
+                <button type="submit">Reset Password</button>
+                <div class="back-link">
+                    <a onclick="closeForgotModal(); openLoginModal();">Kembali ke Login</a>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -235,11 +380,7 @@
         const passwordError = document.getElementById('passwordError');
         const logoutBtn = document.getElementById('logoutBtn');
 
-        // Valid credentials
-        const VALID_USER = 'admin';
-        const VALID_PASS = 'password123';
-
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             // Reset errors
@@ -269,26 +410,43 @@
             
             if (hasError) return;
             
-            // Check credentials
-            if (username === VALID_USER && password === VALID_PASS) {
-                // Show welcome
-                document.getElementById('displayUsername').textContent = username;
-                document.getElementById('displayRemember').textContent = remember ? 'Ya' : 'Tidak';
-                document.getElementById('loginTime').textContent = new Date().toLocaleTimeString();
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
                 
-                loginForm.style.display = 'none';
-                welcomeMessage.classList.add('show');
-            } else {
-                // Invalid credentials
+                const result = await response.json();
+                
+                if (result.success) {
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('username', username);
+                    
+                    document.getElementById('displayUsername').textContent = username;
+                    document.getElementById('displayRemember').textContent = remember ? 'Ya' : 'Tidak';
+                    document.getElementById('loginTime').textContent = new Date().toLocaleTimeString();
+                    
+                    loginForm.style.display = 'none';
+                    welcomeMessage.classList.add('show');
+                } else {
+                    usernameInput.classList.add('error');
+                    passwordInput.classList.add('error');
+                    usernameError.textContent = result.message;
+                    usernameError.classList.add('show');
+                }
+            } catch (err) {
                 usernameInput.classList.add('error');
                 passwordInput.classList.add('error');
-                usernameError.textContent = 'Username atau password salah';
+                usernameError.textContent = 'Terjadi kesalahan, coba lagi';
                 usernameError.classList.add('show');
             }
         });
 
         // Logout
         logoutBtn.addEventListener('click', function() {
+            sessionStorage.removeItem('isLoggedIn');
+            sessionStorage.removeItem('username');
             loginForm.style.display = 'block';
             welcomeMessage.classList.remove('show');
             form.reset();
@@ -297,13 +455,121 @@
         // Forgot password
         document.getElementById('forgot-password').addEventListener('click', function(e) {
             e.preventDefault();
-            alert('Fitur lupa password belum tersedia');
+            document.getElementById('forgotModal').classList.add('show');
         });
 
         // Register
         document.getElementById('register').addEventListener('click', function(e) {
             e.preventDefault();
-            alert('Silakan hubungi administrator untuk mendaftar');
+            document.getElementById('registerModal').classList.add('show');
+        });
+        
+        // Modal functions
+        function closeRegisterModal() {
+            document.getElementById('registerModal').classList.remove('show');
+            document.getElementById('registerForm').reset();
+            document.getElementById('registerError').classList.remove('show');
+            document.getElementById('registerSuccess').classList.remove('show');
+        }
+        
+        function closeForgotModal() {
+            document.getElementById('forgotModal').classList.remove('show');
+            document.getElementById('forgotForm').reset();
+            document.getElementById('forgotError').classList.remove('show');
+            document.getElementById('forgotSuccess').classList.remove('show');
+        }
+        
+        function openLoginModal() {
+            document.getElementById('loginForm').style.display = 'block';
+        }
+        
+        // Register form submit
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const errorEl = document.getElementById('registerError');
+            const successEl = document.getElementById('registerSuccess');
+            
+            errorEl.classList.remove('show');
+            successEl.classList.remove('show');
+            
+            if (password !== confirmPassword) {
+                errorEl.textContent = 'Password tidak cocok';
+                errorEl.classList.add('show');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    successEl.textContent = result.message;
+                    successEl.classList.add('show');
+                    setTimeout(() => {
+                        closeRegisterModal();
+                    }, 1500);
+                } else {
+                    errorEl.textContent = result.message;
+                    errorEl.classList.add('show');
+                }
+            } catch (err) {
+                errorEl.textContent = 'Terjadi kesalahan, coba lagi';
+                errorEl.classList.add('show');
+            }
+        });
+        
+        // Forgot password form submit
+        document.getElementById('forgotForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('forgotEmail').value.trim();
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+            const errorEl = document.getElementById('forgotError');
+            const successEl = document.getElementById('forgotSuccess');
+            
+            errorEl.classList.remove('show');
+            successEl.classList.remove('show');
+            
+            if (newPassword !== confirmNewPassword) {
+                errorEl.textContent = 'Password tidak cocok';
+                errorEl.classList.add('show');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, newPassword })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    successEl.textContent = result.message;
+                    successEl.classList.add('show');
+                    setTimeout(() => {
+                        closeForgotModal();
+                    }, 1500);
+                } else {
+                    errorEl.textContent = result.message;
+                    errorEl.classList.add('show');
+                }
+            } catch (err) {
+                errorEl.textContent = 'Terjadi kesalahan, coba lagi';
+                errorEl.classList.add('show');
+            }
         });
     </script>
 </body>

@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Image - Practice App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .upload-card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        .upload-area {
+            border: 3px dashed #ccc;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .upload-area:hover {
+            border-color: #11998e;
+            background: #f0fdf4;
+        }
+        
+        .upload-area.dragover {
+            border-color: #11998e;
+            background: #f0fdf4;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #11998e;
+            margin-bottom: 15px;
+        }
+        
+        .upload-area p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .upload-area .browse {
+            color: #11998e;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .preview-container {
+            display: none;
+            margin-bottom: 20px;
+        }
+        
+        .preview-container.show {
+            display: block;
+        }
+        
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .preview-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 1;
+        }
+        
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .preview-item .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        .preview-file-info {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .file-info {
+            text-align: center;
+            margin-top: 10px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .btn-upload {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-upload:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(56, 239, 125, 0.4);
+        }
+        
+        .btn-upload:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .error-message {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            text-align: center;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            color: #10b981;
+            margin-bottom: 20px;
+        }
+        
+        .success-message h2 {
+            color: #10b981;
+            margin-bottom: 10px;
+        }
+        
+        .success-message p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .uploaded-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .btn-new {
+            background: #11998e;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #11998e;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="upload-card">
+            <div style="text-align: right; margin-bottom: 10px;">
+                <span id="userDisplay" style="color: #666; margin-right: 10px; font-size: 0.9rem;"></span>
+                <a href="login.html" id="logoutLink" onclick="sessionStorage.removeItem('isLoggedIn'); sessionStorage.removeItem('username');" style="color: #11998e; text-decoration: none; font-size: 0.9rem;">Logout</a>
+            </div>
+            <!-- Upload Form -->
+            <div id="uploadForm">
+                <h1>Upload Gambar</h1>
+                <p class="subtitle">Pilih gambar untuk diupload</p>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <p>Drag & drop gambar di sini</p>
+                    <p>atau <span class="browse">browse</span></p>
+                </div>
+                
+                <input type="file" id="fileInput" accept="image/*" multiple data-testid="file-input">
+                
+                <div class="preview-container" id="previewContainer">
+                    <div class="preview-grid" id="previewGrid"></div>
+                    <p class="preview-file-info" id="fileInfo"></p>
+                </div>
+                
+                <p class="error-message" id="errorMessage"></p>
+                
+                <button type="button" class="btn-upload" id="uploadBtn" data-testid="upload-btn" disabled>
+                    Upload Gambar
+                </button>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Mengupload...</p>
+                </div>
+            </div>
+            
+            <!-- Success Message -->
+            <div id="successMessage" class="success-message">
+                <div class="success-icon">✓</div>
+                <h2>Upload Berhasil!</h2>
+                <p>Gambar Anda telah berhasil diupload</p>
+                
+                <img src="" alt="Uploaded" class="uploaded-image" id="displayImage">
+                
+                <p id="uploadedFileName" style="color: #666; margin-bottom: 20px;"></p>
+                
+                <button class="btn-new" id="newUploadBtn" data-testid="new-upload-btn">Upload Lagi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if (!sessionStorage.getItem('isLoggedIn')) {
+            window.location.href = 'login.html';
+        }
+        
+        document.getElementById('userDisplay').textContent = 'Halo, ' + sessionStorage.getItem('username');
+        
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewGrid = document.getElementById('previewGrid');
+        const fileInfo = document.getElementById('fileInfo');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const uploadForm = document.getElementById('uploadForm');
+        const successMessage = document.getElementById('successMessage');
+        const displayImage = document.getElementById('displayImage');
+        const uploadedFileName = document.getElementById('uploadedFileName');
+        const newUploadBtn = document.getElementById('newUploadBtn');
+        const loading = document.getElementById('loading');
+
+        let selectedFiles = [];
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFilesSelect(files);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFilesSelect(e.target.files);
+            }
+        });
+
+        function handleFilesSelect(files) {
+            errorMessage.classList.remove('show');
+            
+            const newFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+            
+            if (newFiles.length === 0) {
+                showError('File harus berupa gambar');
+                return;
+            }
+            
+            const totalFiles = selectedFiles.length + newFiles.length;
+            
+            if (totalFiles > 10) {
+                showError('Maksimal 10 file');
+                return;
+            }
+            
+            for (const file of newFiles) {
+                if (file.size > 5 * 1024 * 1024) {
+                    showError('Ukuran file maksimal 5MB');
+                    return;
+                }
+            }
+            
+            const startIndex = selectedFiles.length;
+            selectedFiles = [...selectedFiles, ...newFiles];
+            
+            let loadedCount = 0;
+            const totalToLoad = newFiles.length;
+            
+            newFiles.forEach((file, idx) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const div = document.createElement('div');
+                    div.className = 'preview-item';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview">
+                        <button type="button" class="remove-btn" onclick="removeFile(${startIndex + idx})">×</button>
+                    `;
+                    previewGrid.appendChild(div);
+                    
+                    loadedCount++;
+                    if (loadedCount === totalToLoad) {
+                        previewContainer.classList.add('show');
+                        fileInfo.textContent = `${selectedFiles.length} file(s) dipilih`;
+                        uploadBtn.disabled = false;
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            renderPreviews();
+            if (selectedFiles.length === 0) {
+                previewContainer.classList.remove('show');
+                uploadBtn.disabled = true;
+            }
+            fileInfo.textContent = `${selectedFiles.length} file(s) dipilih`;
+        }
+        
+        function renderPreviews() {
+            previewGrid.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const div = document.createElement('div');
+                    div.className = 'preview-item';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview">
+                        <button type="button" class="remove-btn" onclick="removeFile(${index})">×</button>
+                    `;
+                    previewGrid.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+            previewContainer.classList.remove('show');
+            selectedFiles = [];
+            uploadBtn.disabled = true;
+        }
+
+        uploadBtn.addEventListener('click', async () => {
+            if (selectedFiles.length === 0) return;
+            
+            loading.classList.add('show');
+            uploadBtn.disabled = true;
+            errorMessage.classList.remove('show');
+            
+            const formData = new FormData();
+            selectedFiles.forEach(file => {
+                formData.append('images', file);
+            });
+            
+            try {
+                const isMultiple = selectedFiles.length > 1;
+                const url = isMultiple ? 'http://localhost:3000/upload-multiple' : 'http://localhost:3000/upload';
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    if (isMultiple) {
+                        displayMultipleImages(data.files);
+                    } else {
+                        displayImage.src = data.imageUrl;
+                        uploadedFileName.textContent = `File: ${data.fileName}`;
+                    }
+                    uploadForm.style.display = 'none';
+                    successMessage.classList.add('show');
+                } else {
+                    showError(data.error || 'Upload gagal');
+                }
+            } catch (error) {
+                showError('Terjadi kesalahan saat upload');
+            } finally {
+                loading.classList.remove('show');
+            }
+        });
+
+        function displayMultipleImages(files) {
+            const container = document.getElementById('displayImage').parentElement;
+            let html = '<div class="preview-grid" style="grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));">';
+            files.forEach(file => {
+                html += `<div class="preview-item"><img src="${file.imageUrl}" alt="Uploaded"></div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html + `<p id="uploadedFileName" style="color: #666; margin-top: 15px;">${files.length} file(s) uploaded</p>`;
+        }
+
+        newUploadBtn.addEventListener('click', () => {
+            selectedFiles = [];
+            fileInput.value = '';
+            previewContainer.classList.remove('show');
+            previewGrid.innerHTML = '';
+            uploadBtn.disabled = true;
+            errorMessage.classList.remove('show');
+            uploadForm.style.display = 'block';
+            successMessage.classList.remove('show');
+            
+            const displayContainer = document.getElementById('displayImage').parentElement;
+            displayContainer.innerHTML = `
+                <div class="success-icon">✓</div>
+                <h2>Upload Berhasil!</h2>
+                <p>Gambar Anda telah berhasil diupload</p>
+                <img src="" alt="Uploaded" class="uploaded-image" id="displayImage">
+                <p id="uploadedFileName" style="color: #666; margin-bottom: 20px;"></p>
+                <button class="btn-new" id="newUploadBtn">Upload Lagi</button>
+            `;
+            
+            document.getElementById('newUploadBtn').addEventListener('click', arguments.callee);
+        });
+    </script>
+</body>
+</html>
