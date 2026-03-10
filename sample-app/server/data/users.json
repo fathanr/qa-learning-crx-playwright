@@ -12,5 +12,12 @@
     "password": "password",
     "email": "fathan@mail.com",
     "createdAt": "2026-03-10T04:12:04.022Z"
+  },
+  {
+    "id": 1773120237603,
+    "username": "admin",
+    "password": "password123",
+    "email": "admin@example.com",
+    "createdAt": "2026-03-10T05:23:57.603Z"
   }
 ]

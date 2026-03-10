@@ -30,7 +30,7 @@ export class LoginPage {
   }
 
   async goto() {
-    await this.page.goto('file://' + process.cwd() + '/sample-app/login.html');
+    await this.page.goto('http://localhost:3000/login.html');
   }
 
   async login(username: string, password: string, remember: boolean = false) {

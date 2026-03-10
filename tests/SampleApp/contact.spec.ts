@@ -17,7 +17,7 @@ test.describe('Contact Page', () => {
 
   test('Submit form with valid data', async () => {
     await contactPage.fillForm({
-      firstName: '',
+      firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
       phone: '+62 812 3456 7890',
